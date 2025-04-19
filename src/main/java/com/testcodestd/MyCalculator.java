@@ -1,5 +1,8 @@
 package com.testcodestd;
 
+import lombok.Getter;
+
+@Getter
 public class MyCalculator {
 
     private Double result;
@@ -31,9 +34,6 @@ public class MyCalculator {
         return this;
     }
 
-    public Double getResult(){
-        return this.result;
-    }
     public static class ZeroDivisionException extends RuntimeException{
 
     }
