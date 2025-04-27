@@ -19,11 +19,11 @@ public class StudentPass {
     private Long id;
 
     @Column(name="exam")
-    private Long exam;
+    private String exam;
 
     @Column(name="student_name")
-    private Long studentName;
+    private String studentName;
 
     @Column(name="avg_score")
-    private Long avgScore;
+    private Double avgScore;
 }

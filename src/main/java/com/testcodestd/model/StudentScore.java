@@ -18,10 +18,10 @@ public class StudentScore {
     private Long id;
 
     @Column(name="exam")
-    private Long exam;
+    private String exam;
 
     @Column(name="student_name")
-    private Long studentName;
+    private String studentName;
 
     @Column(name="kor_score")
     private Integer korScore;

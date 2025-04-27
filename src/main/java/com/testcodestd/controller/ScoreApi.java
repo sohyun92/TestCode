@@ -3,28 +3,34 @@ package com.testcodestd.controller;
 import com.testcodestd.controller.request.SaveExamScoreRequest;
 import com.testcodestd.controller.response.ExamFailStudentResponse;
 import com.testcodestd.controller.response.ExamPassStudentResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.testcodestd.service.StudentScoreService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 public class ScoreApi {
 
+    private final StudentScoreService studentScoreService;
     @PutMapping("/exam/{exam}/score")
-    public Object save(
+    public void save(
             @PathVariable("exam") String exam,
             @RequestBody SaveExamScoreRequest request){
-        return request;
+        studentScoreService.saveScore(
+                request.getStudentName()
+                ,exam
+                ,request.getKorScore(),
+                request.getEnglishScore(),request.getMatchScore()
+        );
     }
 
     @GetMapping("/exam/{exam}/pass")
     public List<ExamPassStudentResponse> pass(
             @PathVariable("exam") String exam
-    )
-    {
-        return List.of(new ExamPassStudentResponse("sohyeon",60.0));
+    ){
+        return studentScoreService.getPassStudentList(exam);
     }
 
 
@@ -32,7 +38,7 @@ public class ScoreApi {
     public List<ExamFailStudentResponse> fail(
             @PathVariable("exam") String exam
     ){
-        return List.of(new ExamFailStudentResponse("sohyun",20.0));
+        return studentScoreService.getFailStudentList(exam);
     }
 
 }
