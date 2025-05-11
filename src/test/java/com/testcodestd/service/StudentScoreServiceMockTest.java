@@ -1,11 +1,16 @@
 package com.testcodestd.service;
 
+import com.testcodestd.controller.response.ExamPassStudentResponse;
+import com.testcodestd.model.StudentPass;
 import com.testcodestd.repository.StudentFailRepositroy;
 import com.testcodestd.repository.StudentPassRepository;
 import com.testcodestd.repository.StudentScoreRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 public class StudentScoreServiceMockTest {
 
@@ -99,5 +104,45 @@ public class StudentScoreServiceMockTest {
         Mockito.verify(studentScoreRepository,Mockito.times(1)).save(Mockito.any()); //1번 실행이 되어야함
         Mockito.verify(studentPassRepository,Mockito.times(0)).save(Mockito.any());
         Mockito.verify(studentFailRepositroy,Mockito.times(1)).save(Mockito.any()); //1번 실행이 되어야함
+    }
+
+
+    @Test
+    @DisplayName("함격자 명단 가져오기 검증")
+    public void getPassStudentsListTest() {
+        //given
+
+        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
+        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
+        StudentFailRepositroy studentFailRepositroy = Mockito.mock(StudentFailRepositroy.class);
+
+        StudentPass expectStudent1 = StudentPass.builder().id(1L).studentName("sohyun").exam("testexam").avgScore(70.0).build();
+        StudentPass expectStudent2 =  StudentPass.builder().id(2L).studentName("test").exam("testexam").avgScore(80.0).build();
+        StudentPass expectStudent3 =  StudentPass.builder().id(3L).studentName("iamnot").exam("secondExam").avgScore(90.0).build()
+
+
+
+        //findAll이 호출되었을때 이리스트를 리턴합니다. when - thenReturn
+        Mockito.when(studentPassRepository.findAll()).thenReturn(List.of(
+                expectStudent1,expectStudent2,expectStudent3
+                ));
+
+        StudentScoreService studentScoreService = new StudentScoreService(
+                studentScoreRepository,
+                studentPassRepository,
+                studentFailRepositroy
+        );
+        String givenTestExam="testExam";
+
+        //when
+        var expectResponses =List.of(expectStudent1,expectStudent2)
+                .stream()
+                .map((pass->new ExamPassStudentResponse(pass.getStudentName(), pass.getAvgScore()))).toList();
+
+         List<ExamPassStudentResponse> responses = studentScoreService.getPassStudentList(givenTestExam);
+         Assertions.assertIterableEquals(expectResponses,responses);
+         responses.forEach((response) -> System.out.println(response.getStudentName()+" "+response.getAvgScore()));
+
+
     }
 }
