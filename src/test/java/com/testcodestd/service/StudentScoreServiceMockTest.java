@@ -118,7 +118,7 @@ public class StudentScoreServiceMockTest {
 
         StudentPass expectStudent1 = StudentPass.builder().id(1L).studentName("sohyun").exam("testexam").avgScore(70.0).build();
         StudentPass expectStudent2 =  StudentPass.builder().id(2L).studentName("test").exam("testexam").avgScore(80.0).build();
-        StudentPass expectStudent3 =  StudentPass.builder().id(3L).studentName("iamnot").exam("secondExam").avgScore(90.0).build()
+        StudentPass expectStudent3 =  StudentPass.builder().id(3L).studentName("iamnot").exam("secondExam").avgScore(90.0).build();
 
 
 
