@@ -5,11 +5,13 @@ import com.testcodestd.controller.response.ExamPassStudentResponse;
 import com.testcodestd.model.StudentFail;
 import com.testcodestd.model.StudentPass;
 import com.testcodestd.model.StudentScore;
+import com.testcodestd.model.StudentScoreTestDataBuilder;
 import com.testcodestd.repository.StudentFailRepositroy;
 import com.testcodestd.repository.StudentPassRepository;
 import com.testcodestd.repository.StudentScoreRepository;
 import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,16 +21,29 @@ import java.util.List;
 
 public class StudentScoreServiceMockTest {
 
+    private  StudentScoreService studentScoreService;
+    private StudentScoreRepository studentScoreRepository;
+    private StudentPassRepository studentPassRepository;
+    private StudentFailRepositroy studentFailRepositroy;
+
+    @BeforeEach
+    public void beforeEach(){
+        studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
+        studentPassRepository = Mockito.mock(StudentPassRepository.class);
+        studentFailRepositroy = Mockito.mock(StudentFailRepositroy.class);
+        studentScoreService = new StudentScoreService(
+                studentScoreRepository,
+                studentPassRepository,
+                studentFailRepositroy
+        );
+    }
+
     @Test
     @DisplayName("Mock 테스트")
     public void firstsaveSCoreMockTest(){
         //각각의 respository에 Mockito.mock 객체 만들기
         //given
-        StudentScoreService studentScoreService = new StudentScoreService(
-                Mockito.mock(StudentScoreRepository.class),
-                Mockito.mock(StudentPassRepository.class),
-                Mockito.mock(StudentFailRepositroy.class)
-        );
+
 
         //when
         String givenStudentName ="sohyun";
@@ -46,51 +61,30 @@ public class StudentScoreServiceMockTest {
     @Test
     @DisplayName("성적 저장 로직 검증 / 60점 이상인경우")
     public void saveScroeMockTest(){
-        //given 평균점수가 60점 이상인경우
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepositroy studentFailRepositroy = Mockito.mock(StudentFailRepositroy.class);
 
-        String givenStudentName ="sohyun";
-        String givenExam = "testExam";
-        Integer givenKoreaScore =80;
-        Integer givenEnglishScore =100;
-        Integer givenMathScore =60;
-        //when
 
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepositroy
-        );
 
-        StudentScore expectStudentScore = StudentScore.builder().studentName(givenStudentName)
-                .exam(givenExam)
-                .korScore(givenKoreaScore)
-                .englishScore(givenEnglishScore)
-                .mathScore(givenMathScore)
-                .build();
+        StudentScore expectStudentScore = StudentScoreTestDataBuilder.passed().build();
 
-        StudentPass expectStudentPass = StudentPass.builder().studentName(givenStudentName)
-                .exam(givenExam)
-                .exam(givenExam)
-                .avgScore((new MyCalculator(0.0)).add(givenKoreaScore.doubleValue())
-                        .add(givenEnglishScore.doubleValue())
-                        .add(givenMathScore.doubleValue()).divide(3.0)
+        StudentPass expectStudentPass = StudentPass.builder()
+                .studentName(expectStudentScore.getStudentName())
+                .exam(expectStudentScore.getExam())
+                .avgScore((new MyCalculator(0.0)).add(expectStudentScore.getKorScore().doubleValue())
+                        .add(expectStudentScore.getEnglishScore().doubleValue())
+                        .add(expectStudentScore.getMathScore().doubleValue())
+                        .divide(3.0)
                         .getResult()
                 ).build();
 
         ArgumentCaptor<StudentScore> studentScoreArgumentCaptor = ArgumentCaptor.forClass(StudentScore.class);
         ArgumentCaptor<StudentPass> studentPassArgumentCaptor = ArgumentCaptor.forClass(StudentPass.class);
 
-
-
         studentScoreService.saveScore(
-                givenStudentName,
-                givenExam,
-                givenKoreaScore,
-                givenEnglishScore,
-                givenMathScore
+                expectStudentScore.getStudentName(),
+                expectStudentScore.getExam(),
+                expectStudentScore.getKorScore(),
+                expectStudentScore.getEnglishScore(),
+                expectStudentScore.getMathScore()
         );
 
         //then
@@ -119,15 +113,6 @@ public class StudentScoreServiceMockTest {
     @DisplayName("성적 저장 로직 검증 / 60점 미만인경우")
     public void saveScroeMockTest2(){
         //given 평균점수가 60점 이상인경우
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepositroy studentFailRepositroy = Mockito.mock(StudentFailRepositroy.class);
-
-        StudentScoreService studentScoreService = new StudentScoreService(
-                studentScoreRepository,
-                studentPassRepository,
-                studentFailRepositroy
-        );
         String givenStudentName ="sohyun";
         String givenExam = "testExam";
         Integer givenKoreaScore =40;
@@ -188,9 +173,6 @@ public class StudentScoreServiceMockTest {
     public void getPassStudentsListTest() {
         //given
 
-        StudentScoreRepository studentScoreRepository = Mockito.mock(StudentScoreRepository.class);
-        StudentPassRepository studentPassRepository = Mockito.mock(StudentPassRepository.class);
-        StudentFailRepositroy studentFailRepositroy = Mockito.mock(StudentFailRepositroy.class);
 
         StudentPass expectStudent1 = StudentPass.builder().id(1L).studentName("sohyun").exam("testexam").avgScore(70.0).build();
         StudentPass expectStudent2 =  StudentPass.builder().id(2L).studentName("test").exam("testexam").avgScore(80.0).build();
